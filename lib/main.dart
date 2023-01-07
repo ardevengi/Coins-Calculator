@@ -11,7 +11,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Flutter Demo',
       home: MyHomePage(),
     );
   }
@@ -35,20 +34,21 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: mainBackGround,
-      appBar: AppBar(
-        title: Text("Faka Calculator"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  _forYou = 0;
-                  _result = 0;
-                  _forMe = 0;
-                });
-              },
-              icon: Icon(Icons.restart_alt)),
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: Text("Faka Calculator"),
+      //   actions: [
+      //     IconButton(
+      //         onPressed: () {
+      //           setState(() {
+      //             _forYou = 0;
+      //             _result = 0;
+      //             _forMe = 0;
+      //           });
+      //         },
+      //         icon: Icon(Icons.restart_alt)),
+      //   ],
+      // ),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
