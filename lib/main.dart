@@ -1,9 +1,14 @@
 import 'package:faka_calc/assets/color.dart';
 import 'package:flutter/material.dart';
-import 'assets/button.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+enum _MenuBtns {
+  forMe,
+  forYou,
+  reset,
 }
 
 class MyApp extends StatelessWidget {
@@ -11,237 +16,299 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MyHomePage(),
+      home: MyMainPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyMainPage extends StatefulWidget {
+  const MyMainPage({Key? key}) : super(key: key);
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyMainPage> createState() => _MyMainPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  double _forMe = 0.0;
-  double _forYou = 0.0;
-  double _result = 0.0;
-  calc() {
-    _result = _forMe + _forYou;
+class _MyMainPageState extends State<MyMainPage> {
+  late TextEditingController controller;
+  var v;
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    controller.dispose();
+    super.dispose();
+  }
+
+  var _forMe = 0.0;
+  var _forYou = 0.0;
+  var _target = 0.0;
+
+  List<String> buttons = [
+    "+0.25",
+    "+0.5",
+    "+1",
+    "+2",
+    "+3",
+    "-0.25",
+    "-0.5",
+    "-1",
+    "-2",
+    "-3"
+  ];
+
+  checkColor(index) {
+    if (index < 5) {
+      return forMeColor;
+    }
+    return forYouColor;
+  }
+
+  calc() {
+    _target = _forMe - _forYou;
+  }
+
+  add(value) {
+    if (value > 0) {
+      _forMe += value;
+    } else {
+      _forYou -= value;
+    }
+    calc();
+  }
+
+  reset() {
+    _forYou = 0.0;
+    _forMe = 0.0;
+    _target = 0.0;
+  }
+
+  starterForMe() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Starting Value"),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(hintText: "Starting Value"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(controller.text);
+              setState(() {
+                _forMe = double.parse(controller.text);
+                calc();
+              });
+            },
+            child: const Text("Submit"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  starterForYou() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Starting Value"),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(hintText: "Starting Value"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(controller.text);
+              setState(() {
+                _forYou = double.parse(controller.text);
+                calc();
+              });
+            },
+            child: const Text("Submit"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // List<String> buttons=["0.25","0.5","1","2","3"];
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainBackGround,
-      // appBar: AppBar(
-      //   title: Text("Faka Calculator"),
-      //   actions: [
-      //     IconButton(
-      //         onPressed: () {
-      //           setState(() {
-      //             _forYou = 0;
-      //             _result = 0;
-      //             _forMe = 0;
-      //           });
-      //         },
-      //         icon: Icon(Icons.restart_alt)),
-      //   ],
-      // ),
-
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            //Result
-            Container(
-              child: RichText(
-                text: TextSpan(
-                  style: TextStyle(fontSize: 36),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '$_forYou',
-                      style: TextStyle(color: mainRed),
-                    ),
-                    TextSpan(
-                      text: '+',
-                      style: TextStyle(color: mainSigns),
-                    ),
-                    TextSpan(
-                      text: '$_forMe',
-                      style: TextStyle(color: mainGreen),
-                    ),
-                    TextSpan(
-                      text: '=',
-                      style: TextStyle(color: mainSigns),
-                    ),
-                    TextSpan(
-                      text: '$_result',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ],
+      backgroundColor: mainBlue,
+      appBar: AppBar(
+        backgroundColor: mainDark,
+        title: Text("Coin Calculator"),
+        actions: [
+          PopupMenuButton<_MenuBtns>(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: _MenuBtns.forMe,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "For Me",
+                        style: TextStyle(color: forMeColor, fontSize: 18),
+                      ),
+                      WidgetSpan(
+                          child: Icon(
+                        Icons.add,
+                        color: forMeColor,
+                        size: 18,
+                      )),
+                    ],
+                  ),
                 ),
               ),
-              // child: Text(
-              //   '$_forYou+$_forMe=$_result',
-              //   style: TextStyle(fontSize: 48),
-              // ),
-            ),
-
-            //for me
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forMe = _forMe + 0.5;
-                        calc();
-                      });
-                    },
-                    style: forMeButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "+0.5",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
+              PopupMenuDivider(),
+              PopupMenuItem(
+                value: _MenuBtns.forYou,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "For You",
+                        style: TextStyle(color: forYouColor, fontSize: 18),
+                      ),
+                      WidgetSpan(
+                          child: Icon(
+                        Icons.remove,
+                        color: forYouColor,
+                        size: 18,
+                      )),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forMe = _forMe + 1;
-                        calc();
-                      });
-                    },
-                    style: forMeButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "+1",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forMe = _forMe + 2;
-                        calc();
-                      });
-                    },
-                    style: forMeButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "+2",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forMe = _forMe + 3;
-                        calc();
-                      });
-                    },
-                    style: forMeButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "+3",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                ],
+                ),
               ),
-            ),
-
-            //for you
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forYou = _forYou - 0.5;
-                        calc();
-                      });
-                    },
-                    style: forYouButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "-0.5",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
+              PopupMenuDivider(),
+              PopupMenuItem(
+                onTap: () {
+                  setState(() {
+                    reset();
+                  });
+                },
+                value: _MenuBtns.reset,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Reset",
+                        style: TextStyle(color: mainDark, fontSize: 18),
+                      ),
+                      WidgetSpan(
+                          child: Icon(
+                        Icons.restart_alt,
+                        color: mainDark,
+                        size: 18,
+                      )),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forYou = _forYou - 1;
-                        calc();
-                      });
-                    },
-                    style: forYouButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "-1",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forYou = _forYou - 2;
-                        calc();
-                      });
-                    },
-                    style: forYouButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "-2",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _forYou = _forYou - 3;
-                        calc();
-                      });
-                    },
-                    style: forYouButtonStyle,
-                    child: const Center(
-                        child: Text(
-                      "-3",
-                      style: TextStyle(fontSize: 34, color: Colors.white),
-                    )),
-                  ),
-                ],
+                ),
               ),
+            ],
+            onSelected: (value) async {
+              switch (value) {
+                case _MenuBtns.forMe:
+                  controller.clear();
+                  await starterForMe();
+                  break;
+                case _MenuBtns.forYou:
+                  controller.clear();
+                  await starterForYou();
+                  break;
+              }
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          //Total
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: RichText(
+                  text: TextSpan(style: TextStyle(fontSize: 48), children: [
+                TextSpan(
+                  text: "$_forMe",
+                  style: TextStyle(color: forMeColor),
+                ),
+                TextSpan(
+                  text: "-",
+                  style: TextStyle(color: Colors.white),
+                ),
+                TextSpan(
+                  text: "$_forYou",
+                  style: TextStyle(color: forYouColor),
+                ),
+                TextSpan(
+                  text: "=",
+                  style: TextStyle(color: Colors.white),
+                ),
+                TextSpan(
+                  text: "$_target",
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ])),
             ),
+          ),
 
-            //reset
+          //for me
+          Divider(
+            color: Colors.white,
+            thickness: 2,
+            height: 20,
+          ),
 
-            // Container(
-            //   margin: EdgeInsets.fromLTRB(0, 150, 0, 0),
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       setState(() {
-            //         _forYou = 0;
-            //         _result = 0;
-            //         _forMe = 0;
-            //       });
-            //     },
-            //     style: forResetButtonStyle,
-            //     child: Text(
-            //       "reset",
-            //       style: TextStyle(fontSize: 22),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
+          //for you
+          Expanded(
+            flex: 3,
+            child: GridView.builder(
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+              itemCount: buttons.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          add(double.parse(buttons[index]));
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: checkColor(index),
+                      ),
+                      child: FittedBox(
+                        child: Text(
+                          buttons[index],
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
       ),
     );
   }
